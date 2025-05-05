@@ -1,0 +1,24 @@
+name: genai
+channels:
+  - pytorch
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - pip
+  - numpy
+  - pandas
+  - matplotlib
+  - tqdm
+  - pillow
+  - pytorch
+  - torchvision
+  - ipython
+  - jupyter
+  - notebook
+  - pyyaml
+  - requests
+  - scikit-learn
+  - pip:
+      - optuna
+      - gdown
