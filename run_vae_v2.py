@@ -4,7 +4,7 @@ import random
 import datetime
 from typing import Optional
 import yaml
-
+import matplotlib.pyplot as plt
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -162,7 +162,7 @@ def train(args):
 
     latent_dim = args.latent_dim
     lr = args.lr
-    beta = args.beta
+    kld_history = []     
 
     model = VAE(latent_dim=latent_dim, cond_dim=cond_dim, img_size=args.img_size).to(device)
     optimizer = optim.Adam(model.parameters(), lr=lr)
@@ -171,8 +171,23 @@ def train(args):
 
     # ---------- Training loop ----------
     for epoch in range(1, args.epochs + 1):
+        # -------- KL annealing / cyclic β schedule --------
+        # Linear warm‑up: β = 0 → args.beta over args.beta_warmup epochs.
+        # If --beta_cycle > 0, this pattern repeats every beta_cycle epochs.
+        if args.beta_cycle > 0:
+            # Position within current cycle (0‑based)
+            cycle_pos = (epoch - 1) % args.beta_cycle
+            warm_frac = min(1.0, cycle_pos / max(1, args.beta_warmup))
+        else:
+            # One‑shot warm‑up that never resets
+            warm_frac = min(1.0, epoch / max(1, args.beta_warmup))
+        beta = args.beta * warm_frac
+        # ---------------------------------------------------
+
         model.train()
         running_loss = 0.0
+        epoch_kld_sum = 0.0
+        
         for imgs, targets in tqdm(train_loader, desc=f"Epoch {epoch}/{args.epochs}"):
             imgs = imgs.to(device)
             one_hot = nn.functional.one_hot(targets, num_classes=n_classes).float().to(device) if args.conditional else None
@@ -184,9 +199,12 @@ def train(args):
             optimizer.step()
 
             running_loss += loss.item()
+            epoch_kld_sum += kld.item()
 
         avg_loss = running_loss / len(train_loader.dataset)
-        print(f"Epoch {epoch}: loss={avg_loss:.4f}")
+        avg_kld = epoch_kld_sum / len(train_loader.dataset)  # epoch_kld_sum 是你在 inner loop 累加的
+        kld_history.append(avg_kld)
+        print(f"Epoch {epoch}: loss={avg_loss:.4f} | β={beta:.4f} | KL={avg_kld:.4f}")
 
         if epoch % args.sample_every == 0:
             if args.conditional:
@@ -196,6 +214,12 @@ def train(args):
                 save_samples(model, device, args.log_dir, epoch)
 
             torch.save(model.state_dict(), os.path.join(args.log_dir, f"vae_epoch_{epoch}.pt"))
+    plt.plot(range(1, len(kld_history)+1), kld_history)
+    plt.xlabel("Epoch")
+    plt.ylabel("Average KL divergence")
+    plt.title("KL curve")
+    plt.savefig(os.path.join(args.log_dir, "kl_curve.png"))
+    plt.close()
 
 # ------------------------ Inference ------------------------
 
@@ -243,13 +267,14 @@ def parse_args():
         description="Impressionist Paintings Generator (VAE/CVAE)"
     )
 
+    parser.set_defaults(**config_defaults)
+
     parser.add_argument("--data_dir", type=str, help="Dataset root directory")
     parser.add_argument("--log_dir", type=str, help="Directory for saving logs and samples")
     parser.add_argument("--epochs", type=int, help="Training epochs")
     parser.add_argument("--batch_size", type=int, help="Batch size")
     parser.add_argument("--lr", type=float, help="Learning rate")
     parser.add_argument("--latent_dim", type=int, help="Latent dimension")
-    parser.add_argument("--beta", type=float, help="KL loss weight")
     parser.add_argument("--img_size", type=int, help="Image size (square)")
     parser.add_argument("--conditional", action="store_true", help="Use Conditional VAE")
     parser.add_argument("--sample_every", type=int, help="Sample every N epochs")
@@ -257,8 +282,9 @@ def parse_args():
     parser.add_argument("--inference", action="store_true", help="Run inference mode only")
     parser.add_argument("--model_path", type=str, help="Path to trained model")
     parser.add_argument("--n_samples", type=int, help="Samples to generate during inference")
-
-    parser.set_defaults(**config_defaults)
+    parser.add_argument("--beta", type=float, help="Weight for the KL divergence term in the loss")
+    parser.add_argument("--beta_warmup", type=int, help="Number of epochs to linearly ramp β from 0 → --beta")
+    parser.add_argument("--beta_cycle", type=int, help="Length of a full β cycle in epochs; 0 = no cycle (one‑shot warm‑up)")
 
     args = parser.parse_args(remaining_argv)
 
