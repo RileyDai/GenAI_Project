@@ -38,7 +38,7 @@ This project utilizes two datasets:
   - `Golden` : 1938
   - `Golden-Red` : 1647
   - `Red` : 1885
-- Download from Google Drive: [Dataset Link](https://drive.google.com/file/d/1PReXv2oG5IiErLhXRoru0oJIF25RCYS8/view?usp=drive_link)
+- Download from Google Drive: [Dataset Link](https://drive.google.com/file/d/1PReXv2oG5IiErLhXRoru0oJIF25RCYS8/view?usp=sharing)
 
 > **Why two datasets?**  
 > During implementation, I found that paintings require much finer detail and structure to generate realistic results. In contrast, , Fruit360 is simpler and more structured. It allows the model’s performance to be shown more directly.
@@ -49,19 +49,19 @@ This project utilizes two datasets:
 
 ```bash
 conda env create -f environment.yml
-conda activate genai
+conda activate vae
 ```
 
 ### 2. Train
 
 ```bash
-python run_vae.py --config ./config/train_apples
+python run_vae.py --config ./config/train_apples.yaml
 ```
 
 ### 3. Test
 
 ```bash
-python run_vae.py --config ./config/test_apples
+python run_vae.py --config ./config/test_apples.yaml
 ```
 
 To visually explore the generated samples, you can launch the interactive Streamlit UI:
