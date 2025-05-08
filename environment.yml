@@ -1,24 +1,26 @@
-name: genai
+name: vae
 channels:
-  - pytorch
-  - conda-forge
   - defaults
+  - conda-forge
+  - pytorch
 dependencies:
   - python=3.10
   - pip
-  - numpy
-  - pandas
-  - matplotlib
-  - tqdm
-  - pillow
-  - pytorch
-  - torchvision
-  - ipython
-  - jupyter
-  - notebook
-  - pyyaml
-  - requests
+  - numpy=2.2.4
+  - pandas=2.2.3
+  - matplotlib=3.10.0
   - scikit-learn
+  - pytorch=2.5.1
+  - torchvision=0.20.1
+  - tensorboard=2.19.0
+  - streamlit=1.44.1
+  - pyyaml
+  - tqdm
+  - tensorboardx
+  - torchmetrics=1.7.1
   - pip:
-      - optuna
-      - gdown
+      - wandb==0.19.10
+      - optuna==4.3.0
+      - ray==2.45.0
+      - torch-fidelity==0.3.0
+      - gdown==5.2.0

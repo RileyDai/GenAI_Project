@@ -1,21 +1,15 @@
-# ========== Data Configuration ==========
-data_dir: ./data_impressionism         
+data_dir: ./data_impressionism        
 log_dir: ./logs                      
 img_size: 128                       
-batch_size: 64                      
-
-# ========== Model & Training ==========
+batch_size: 64                       
 epochs: 100                           
-lr: 0.0002                           
-latent_dim: 128                      
-beta: 1.0                             
+lr: 0.0005                           
+latent_dim: 128
+beta: 0.5   
+beta_warmup: 10
+beta_cycle: 20                             
 conditional: False                     
-
-# ========== Sampling ==========
 sample_every: 10                     
 sample_per_class: 8                   
-
-# ========== Inference ==========
 inference: false                      
-model_path: ./logs/vae_2025-05-05_04-22-42/vae_epoch_100.pt
 n_samples: 16                        

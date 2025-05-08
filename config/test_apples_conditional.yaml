@@ -1,0 +1,21 @@
+# ========== Data Configuration ==========
+data_dir: ./data_apples         
+log_dir: ./logs                      
+img_size: 96                       
+batch_size: 64                      
+
+# ========== Model & Training ==========
+epochs: 100                           
+lr: 0.0002                           
+latent_dim: 128                      
+beta: 4.0                             
+conditional: True                     
+
+# ========== Sampling ==========
+sample_every: 10                     
+sample_per_class: 8                   
+
+# ========== Inference ==========
+inference: True                      
+model_path: best_models/best_apples_conditional.pt
+n_samples: 8                        

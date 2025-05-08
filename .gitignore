@@ -3,3 +3,7 @@ data_apples/
 data_impressionism/
 data.zip
 .DS_Store
+ray_results/
+run_vae_v3.1.py
+data_apples.zip
+models/

@@ -8,14 +8,14 @@ batch_size: 64
 epochs: 100                           
 lr: 0.0002                           
 latent_dim: 128                      
-beta: 1.5                             
+beta: 4.0                             
 conditional: False                     
 
 # ========== Sampling ==========
 sample_every: 10                     
-sample_per_class: 8                   
+sample_per_class: 8                    
 
 # ========== Inference ==========
 inference: True                      
-model_path: ./logs/vae_apples_2025-05-05_16-59-18/vae_epoch_100.pt
-n_samples: 16                        
+model_path: best_models/best_apples.pt
+n_samples: 64                        
